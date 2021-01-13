@@ -7,8 +7,7 @@ const routerBase = express.Router();
 const controller = require('../../controllers/tickets.controller');
 
 routerBase.route('/')
-  .get(controller.index)
-  .post(controller.save);
+  .post(controller.create);
 
 router.use('/tickets', routerBase);
 

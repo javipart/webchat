@@ -7,8 +7,7 @@ const routerBase = express.Router();
 const controller = require('../../controllers/rooms.controller');
 
 routerBase.route('/')
-  .get(controller.index)
-  .post(controller.save);
+  .post(controller.create);
 
 router.use('/rooms', routerBase);
 
