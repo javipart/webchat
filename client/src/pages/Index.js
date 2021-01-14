@@ -12,8 +12,10 @@ import {
 
 import { makeStyles } from '@material-ui/core/styles';
 import Form from '../components/Form';
+import Chat from '../components/Chat';
 import usersApi from '../api/usersApi';
 import roomsApi from '../api/roomsApi';
+import socketApi from '../api/socketApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,6 +39,7 @@ const Index = () => {
   const [formView, setFormView] = useState(false);
   const [chatView, setChatView] = useState(false);
   const [idChat, setIdChat] = useState(null);
+  const [idChatUser, setIdChatUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [form, setForm] = useState({
     name: '',
@@ -62,6 +65,7 @@ const Index = () => {
       .then((result) => {
         const { data: user } = result;
         const idUser = user[fieldId];
+        setIdChatUser(idUser);
         roomsApi.save({
           user: idUser,
           agent: '60006ea70129143b78a78bb6',
@@ -76,6 +80,22 @@ const Index = () => {
         })
       });
   };
+
+  const pushMessage = (data) => {
+    console.log(data);
+  };
+
+  const sendMessage = (data) => {
+    roomsApi.pushMessage(data).then((result) => {
+      console.log(result)
+    })
+  };
+
+  useEffect(() => {
+    if (idChat) {
+      socketApi.connect(`message-${idChat}`, pushMessage);
+    }
+  }, [idChat]);
 
   return (
     <div className={classes.root}>
@@ -109,20 +129,29 @@ const Index = () => {
           horizontal: 'right',
         }}
       >
-        <div>
-          <h4>Complete el formulario para iniciar el Chat</h4>
-          <Paper style={{
-            padding: 1,
-            margin: 'auto',
-            minWidth: 300,
-          }}>
-            <Form
-              form={form}
-              handleForm={handleForm}
-              saveForm={saveForm}
-            />
-          </Paper>
-        </div>
+        <Paper style={{
+          padding: 1,
+          margin: 'auto',
+          minWidth: 300,
+          minHeight: 200,
+        }}>
+          <Chat
+            idChat={idChat}
+            idChatUser={idChatUser}
+            sendMessage={sendMessage}
+          />
+          {/*chatView && idChat
+              ? <Chat
+                idChat={idChat}
+                idChatUser={idChatUser}
+                sendMessage={sendMessage}
+              />
+              : <Form
+                form={form}
+                handleForm={handleForm}
+                saveForm={saveForm}
+          />*/}
+        </Paper>
       </Popover>
     </div>
   );

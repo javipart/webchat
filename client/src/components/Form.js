@@ -44,7 +44,7 @@ const Form = ({ form, handleForm, saveForm }) => {
               <TextField
                 id={'doc'}
                 label={'Documento'}
-                value={form.doc}
+                value={form.id}
                 onChange={handleForm}
                 fullWidth
               />

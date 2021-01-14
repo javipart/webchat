@@ -20,13 +20,14 @@ module.exports = {
     let result = false;
     let { default: data = '' } = req;
     try {
-      const { models, body } = req;
+      const { models, body, websocket } = req;
       const { id, data: chat } = body;
       await models.room.pushMessage(id, chat)
         .then((message) => {
           data = message;
           result = true;
         });
+      websocket.emitEvent(`${websocket.events.message}-${idBusiness}`, chat.data);
     } catch (err) {
       return next(err);
     }
