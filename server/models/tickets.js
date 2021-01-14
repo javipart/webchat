@@ -29,11 +29,15 @@ const schema = new Schema({
   date: { type: Date, default: Date.now },
 });
 
-schema.statics.create = function create() {
+schema.statics.save = function save() {
   
 };
 
 schema.statics.get = function get() {
+  
+};
+
+schema.statics.update = function update() {
   
 };
 

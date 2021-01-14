@@ -4,11 +4,10 @@ module.exports = {
     let result = false;
     let { default: data = '' } = req;
     try {
-      const { models, params } = req;
-      const { } = params;
-      await models.user.create()
-        .then((room) => {
-          data = room;
+      const { models, body } = req;
+      await models.user.create(body)
+        .then((user) => {
+          data = user.shift();
           result = true;
         });
     } catch (err) {

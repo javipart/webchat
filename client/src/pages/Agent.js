@@ -13,7 +13,6 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import Form from '../components/Form';
 import usersApi from '../api/usersApi';
-import roomsApi from '../api/roomsApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,12 +35,11 @@ const useStyles = makeStyles((theme) => ({
 const Index = () => {
   const [formView, setFormView] = useState(false);
   const [chatView, setChatView] = useState(false);
-  const [idChat, setIdChat] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [form, setForm] = useState({
     name: '',
     lastName: '',
-    doc: '',
+    id: '',
     phone: '',
   });
 
@@ -57,24 +55,7 @@ const Index = () => {
   };
 
   const saveForm = () => {
-    const fieldId = '_id'
-    usersApi.save(form)
-      .then((result) => {
-        const { data: user } = result;
-        const idUser = user[fieldId];
-        roomsApi.save({
-          user: idUser,
-          agent: '60006ea70129143b78a78bb6',
-          chat: {
-            transmitter: idUser,
-            message: 'Hola',
-          }
-        }).then((resultRoom) => {
-          const { data: room } = resultRoom;
-          setChatView(true);
-          setIdChat(room[fieldId]);
-        })
-      });
+    usersApi.save(form).then()
   };
 
   return (
@@ -82,7 +63,7 @@ const Index = () => {
       <AppBar>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            My Test
+            My Agent
           </Typography>
         </Toolbar>
       </AppBar>

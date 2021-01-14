@@ -7,16 +7,7 @@ const schema = new Schema({
     type: String,
     required: true,
   },
-  lastName: {
-    type: String,
-    required: true,
-  },
   doc: {
-    type: String,
-    required: true,
-    index: true
-  },
-  phone: {
     type: String,
     required: true,
     index: true,
@@ -24,11 +15,14 @@ const schema = new Schema({
 });
 
 schema.statics.create = function create(data) {
-  return this.insertMany(data);
+  return this.insertMany({
+    name: data.user,
+    doc: data.agent,
+  });
 };
 
-schema.statics.get = function get() {
-
+schema.statics.get = function get(doc) {
+  return this.findOne({ doc });
 };
 
-module.exports = mongoose.model('user', schema);
+module.exports = mongoose.model('agent', schema);

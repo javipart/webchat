@@ -42,9 +42,9 @@ const Form = ({ form, handleForm, saveForm }) => {
             </Grid>
             <Grid item xs>
               <TextField
-                id={'id'}
+                id={'doc'}
                 label={'Documento'}
-                value={form.id}
+                value={form.doc}
                 onChange={handleForm}
                 fullWidth
               />
