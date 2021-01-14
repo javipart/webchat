@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const driver = require('../drivers/mongo');
 
-const noModel = ['.', 'index.js'];
-driver();
+const noModel = ['.', 'index.js', 'schemas'];
+driver.connect();
 fs
   .readdirSync(__dirname)
   .filter((file) => (noModel.indexOf(file) === -1))

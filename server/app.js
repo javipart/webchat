@@ -13,7 +13,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 app.use((req, res, next) => {
-  req.models = models;
+  req.mongo = models;
+  req.models = models.mongoose.models;
+  req.default = 'Error Processing';
+  res.response = (success, data) => res.json({ success, data });
   req.websocket = socketApi;
   next();
 });

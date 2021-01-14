@@ -16,16 +16,31 @@ const schema = new Schema({
   date: { type: Date, default: Date.now },
 });
 
-schema.statics.create = function create() {
-  
+schema.statics.create = function create(data) {
+  return this.insertMany({
+    transmitter: data.transmitter,
+    receiver: data.receiver,
+    chat: data.chat,
+  });
 };
 
-schema.statics.pushMessage = function pushMessage() {
-  
+schema.statics.pushMessage = function pushMessage(id, data) {
+  return this.updateOne({
+    _id: id,
+  }, {
+    $addToSet: {
+      chat: {
+        transmitter: data.transmitter,
+        receiver: data.receiver,
+        message: data.message,
+      }
+    }
+  });
 };
 
-schema.statics.get = function get() {
-  
+schema.statics.get = function get(id) {
+  const field = '_id';
+  this.findOne({ [field]: id });
 };
 
 module.exports = mongoose.model('room', schema);

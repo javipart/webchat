@@ -14,6 +14,6 @@ module.exports = {
     } catch (err) {
       return next(err);
     }
-    return res.json({ success: result, data });
+    return res.response(result, data);
   },
 };
