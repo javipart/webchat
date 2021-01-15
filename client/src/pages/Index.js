@@ -94,13 +94,6 @@ const Index = () => {
     })
   };
 
-  useEffect(() => {
-    console.log('Ingresaaaaaaaaaaaaaaaaaaaa')
-    if (idChat) {
-      socket.on(`message-${idChat}`, pushMessage);
-    }
-  }, [idChat]);
-
   return (
     <div className={classes.root}>
       <AppBar>
@@ -144,6 +137,7 @@ const Index = () => {
               idChat={idChat}
               idChatUser={idChatUser}
               sendMessage={sendMessage}
+              pushMessage={pushMessage}
             />
             : <Form
               form={form}

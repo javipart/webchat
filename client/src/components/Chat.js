@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import io from 'socket.io-client';
+
 import {
   Button,
   Grid,
@@ -15,11 +17,21 @@ import {
   Send
 } from '@material-ui/icons';
 
-const Chat = ({ idChat, idChatUser, message = {}, sendMessage }) => {
+const Chat = ({ idChat, idChatUser, message = {}, sendMessage, pushMessage }) => {
   const [data, setData] = useState({
     transmitter: idChatUser,
     message: '',
   });
+  const listener = io.connect('http://localhost:3011/');
+
+  useEffect(() => {
+    listener.on(`message-${idChat}`, pushMessage);
+    return () => {
+      listener.off(`message-${idChat}`, pushMessage);
+    };
+
+  }, []);
+
   return (
     <>
       <Grid item xs={12}>
