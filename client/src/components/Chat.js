@@ -17,20 +17,19 @@ import {
   Send
 } from '@material-ui/icons';
 
-const Chat = ({ idChat, idChatUser, message = {}, sendMessage, pushMessage }) => {
+const Chat = ({ idChat, idChatUser, message = {}, sendMessage, pushMessage, conversation }) => {
   const [data, setData] = useState({
     transmitter: idChatUser,
     message: '',
   });
-  const listener = io.connect('http://localhost:3011/');
 
-  useEffect(() => {
-    listener.on(`message-${idChat}`, pushMessage);
-    return () => {
-      listener.off(`message-${idChat}`, pushMessage);
-    };
-
-  }, []);
+  const allMessages = conversation.map((item) => (
+    <ListItem>
+      <Grid item>
+        <ListItemText primary={item.message} />
+      </Grid>
+    </ListItem>
+  ));
 
   return (
     <>
@@ -38,16 +37,7 @@ const Chat = ({ idChat, idChatUser, message = {}, sendMessage, pushMessage }) =>
         <List style={{
           overflowY: 'auto',
         }}>
-          <ListItem>
-            <Grid item>
-              <ListItemText align='right' primary={'Hola'} />
-            </Grid>
-          </ListItem>
-          <ListItem>
-            <Grid item>
-              <ListItemText align='left' primary={'Que tal?'} />
-            </Grid>
-          </ListItem>
+          {allMessages}
         </List>
       </Grid>
       <Paper style={{

@@ -12,6 +12,12 @@ routerBase.route('/')
 routerBase.route('/message')
   .post(controller.pushMessage);
 
+routerBase.route('/:doc')
+  .get(controller.getAgent);
+
+routerBase.route('/room/:id')
+  .get(controller.get);
+
 router.use('/rooms', routerBase);
 
 

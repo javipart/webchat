@@ -1,7 +1,8 @@
 const Websocket = require('./websocket');
 
 const events = {
-  message: 'message',
+  message: 'MESSAGE',
+  newRoom: 'NEW_ROOM',
 };
 
 const emitEvent = (event, data) => {

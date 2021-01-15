@@ -7,4 +7,12 @@ export default class {
   static pushMessage(data) {
     return instance.post('rooms/message', data).then(apiGetData);
   }
+
+  static getAgentRooms(id) {
+    return instance.get(`rooms/${id}`).then(apiGetData);
+  }
+
+  static getRoom(id) {
+    return instance.get(`rooms/room/${id}`).then(apiGetData);
+  }
 }

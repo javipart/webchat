@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const socket = require('./utils/socket');
 
@@ -8,6 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(cors());
 app.use((req, res, next) => {
   req.getHost = () => `${req.protocol}://${req.get('host')}`;
   res.response = (success, data) => res.json({ success, data });

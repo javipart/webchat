@@ -4,11 +4,12 @@ module.exports = {
     let result = false;
     let { default: data = '' } = req;
     try {
-      const { models, body } = req;
+      const { models, body, websocket } = req;
       await models.room.create(body)
         .then((room) => {
           data = room.shift();
           result = true;
+          websocket.emitEvent(websocket.events.newRoom, data);
         });
     } catch (err) {
       return next(err);
@@ -38,13 +39,15 @@ module.exports = {
     let result = false;
     let { default: data = '' } = req;
     try {
-      const { models, body } = req;
-      await models.room.getAgent(body)
-        .then((room) => {
-          data = room;
+      const { models, params } = req;
+      const { doc } = params
+      await models.room.getAgent(doc)
+        .then((rooms) => {
+          data = rooms;
           result = true;
         });
     } catch (err) {
+      console.log(err)
       return next(err);
     }
     return res.response(result, data);
@@ -54,8 +57,9 @@ module.exports = {
     let result = false;
     let { default: data = '' } = req;
     try {
-      const { models, body } = req;
-      await models.room.get(body)
+      const { models, params } = req;
+      const { id } = params;
+      await models.room.get(id)
         .then((room) => {
           data = room;
           result = true;

@@ -42,11 +42,11 @@ schema.statics.pushMessage = function pushMessage(id, data) {
 
 schema.statics.get = function get(id) {
   const field = '_id';
-  this.findOne({ [field]: id });
+  return this.findOne({ [field]: id });
 };
 
 schema.statics.getAgent = function getAgent(id) {
-  this.find({ agent: id });
+  return this.find({ agent: id });
 };
 
 module.exports = mongoose.model('room', schema);

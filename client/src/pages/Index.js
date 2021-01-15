@@ -15,7 +15,12 @@ import Form from '../components/Form';
 import Chat from '../components/Chat';
 import usersApi from '../api/usersApi';
 import roomsApi from '../api/roomsApi';
-import socketApi from '../api/socketApi';
+import {
+  initSocket,
+  disconnectSocket,
+  subscribeToChat,
+  sendMessageChat,
+} from '../api/socketApi';
 
 const io = require('socket.io-client');
 const socket = io('http://localhost:3011/');
@@ -50,6 +55,7 @@ const Index = () => {
     doc: '',
     phone: '',
   });
+  const [conversation, setConversation] = useState([]);
 
   const classes = useStyles();
 
@@ -80,19 +86,31 @@ const Index = () => {
           const { data: room } = resultRoom;
           setChatView(true);
           setIdChat(room[fieldId]);
+          const firstMessage = room.chat.shift();
+          setConversation(conversation => [...conversation, firstMessage]);
         })
       });
   };
 
   const pushMessage = (data) => {
-    console.log(data);
+    setConversation(conversation => [...conversation, data]);
   };
 
   const sendMessage = (data) => {
-    roomsApi.pushMessage(data).then((result) => {
-      console.log(result)
-    })
+    roomsApi.pushMessage(data);
   };
+
+
+
+  useEffect(() => {
+    if (idChat) {
+      initSocket();
+      subscribeToChat(idChat, pushMessage);
+      return () => {
+        disconnectSocket();
+      };
+    }
+  }, [idChat]);
 
   return (
     <div className={classes.root}>
@@ -138,6 +156,7 @@ const Index = () => {
               idChatUser={idChatUser}
               sendMessage={sendMessage}
               pushMessage={pushMessage}
+              conversation={conversation}
             />
             : <Form
               form={form}

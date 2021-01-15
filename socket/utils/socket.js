@@ -3,6 +3,8 @@ const socketIo = require('socket.io');
 const io = socketIo();
 const socket = {};
 
+io.origins(["http://localhost:3000"]);
+
 io.on('connection', (connect) => {
   const address = connect.handshake;
   console.log(`Connected from ${address.address}} [Referer: ${address.headers.origin}]`);
