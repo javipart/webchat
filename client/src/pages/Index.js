@@ -17,6 +17,9 @@ import usersApi from '../api/usersApi';
 import roomsApi from '../api/roomsApi';
 import socketApi from '../api/socketApi';
 
+const io = require('socket.io-client');
+const socket = io('http://localhost:3011/');
+
 const useStyles = makeStyles((theme) => ({
   root: {
     position: 'relative',
@@ -92,8 +95,9 @@ const Index = () => {
   };
 
   useEffect(() => {
+    console.log('Ingresaaaaaaaaaaaaaaaaaaaa')
     if (idChat) {
-      socketApi.connect(`message-${idChat}`, pushMessage);
+      socket.on(`message-${idChat}`, pushMessage);
     }
   }, [idChat]);
 
@@ -135,22 +139,17 @@ const Index = () => {
           minWidth: 300,
           minHeight: 200,
         }}>
-          <Chat
-            idChat={idChat}
-            idChatUser={idChatUser}
-            sendMessage={sendMessage}
-          />
-          {/*chatView && idChat
-              ? <Chat
-                idChat={idChat}
-                idChatUser={idChatUser}
-                sendMessage={sendMessage}
-              />
-              : <Form
-                form={form}
-                handleForm={handleForm}
-                saveForm={saveForm}
-          />*/}
+          {chatView && idChat
+            ? <Chat
+              idChat={idChat}
+              idChatUser={idChatUser}
+              sendMessage={sendMessage}
+            />
+            : <Form
+              form={form}
+              handleForm={handleForm}
+              saveForm={saveForm}
+            />}
         </Paper>
       </Popover>
     </div>

@@ -56,7 +56,7 @@ const Chat = ({ idChat, idChatUser, message = {}, sendMessage }) => {
           fullWidth
         />
         <IconButton onClick={() => {
-          sendMessage(data);
+          sendMessage({ id: idChat, data });
           setData({ ...data, message: '' });
         }}>
           <Send />

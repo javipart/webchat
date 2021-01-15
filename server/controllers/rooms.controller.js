@@ -27,7 +27,7 @@ module.exports = {
           data = message;
           result = true;
         });
-      websocket.emitEvent(`${websocket.events.message}-${idBusiness}`, chat.data);
+      websocket.emitEvent(`${websocket.events.message}-${id}`, chat);
     } catch (err) {
       return next(err);
     }

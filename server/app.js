@@ -3,7 +3,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const models = require('./models');
-const socketApi = require('./utils/websocket');
+const socketApi = require('./utils/socket');
 
 const app = express();
 const port = 3010;
