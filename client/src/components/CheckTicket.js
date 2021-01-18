@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
 import {
-  Button,
+  IconButton,
   Grid,
   TextField,
 } from '@material-ui/core';
 
 import {
+  Search,
   Send
 } from '@material-ui/icons';
 
@@ -24,9 +25,9 @@ const CheckTicket = ({ findTicket }) => {
         />
       </Grid>
       <Grid item xs={2}>
-        <Button onClick={findTicket}>
-          Buscar
-        </Button>
+        <IconButton onClick={() => findTicket(numberTicket)}>
+          <Search />
+        </IconButton>
       </Grid>
     </Grid>
   );

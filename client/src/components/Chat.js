@@ -81,10 +81,12 @@ const Chat = ({ idChat, idChatUser, message = {}, sendMessage, pushMessage, conv
           />
         </Grid>
         <Grid xs={2} align="right">
-          <IconButton onClick={() => {
-            sendMessage({ id: idChat, data });
-            setData({ ...data, message: '' });
-          }}>
+          <IconButton
+            disabled={data.message === ''}
+            onClick={() => {
+              sendMessage({ id: idChat, data });
+              setData({ ...data, message: '' });
+            }}>
             <Send />
           </IconButton>
         </Grid>

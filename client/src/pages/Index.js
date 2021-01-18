@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Toolbar, AppBar,
   IconButton, Typography,
-  Button, Fab, Popover, Box, Grid, Card, Paper,
+  Button, Fab, Popover, Box, Grid, Card, Paper, Dialog,
 } from '@material-ui/core';
 
 import {
@@ -24,12 +24,12 @@ import {
   subscribeToChat,
   sendMessageChat,
 } from '../api/socketApi';
+import ViewTicket from '../components/ViewTicket';
 
 const io = require('socket.io-client');
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    position: 'relative',
     minHeight: 700,
   },
   menuButton: {
@@ -37,6 +37,11 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
+  },
+  card: {
+    position: 'absolute',
+    bottom: theme.spacing(70),
+    right: theme.spacing(130),
   },
   fab: {
     position: 'absolute',
@@ -51,6 +56,8 @@ const Index = () => {
   const [idChat, setIdChat] = useState(null);
   const [idChatUser, setIdChatUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [ticket, setTicket] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     name: '',
     lastName: '',
@@ -104,7 +111,10 @@ const Index = () => {
 
   const findTicket = (id) => {
     ticketsApi.get(id).then(result => {
-      console.log(result);
+      const { data } = result;
+      console.log(data)
+      setTicket(data.shift());
+      setShowModal(true)
     });
   }
 
@@ -127,9 +137,7 @@ const Index = () => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Card style={{
-        position: 'relative'
-      }}>
+      <Card className={classes.card}>
         <CheckTicket
           findTicket={findTicket}
         />
@@ -178,6 +186,16 @@ const Index = () => {
             />}
         </Paper>
       </Popover>
+      <Dialog
+        id={'check'}
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      >
+        <ViewTicket
+         setShowModal={setShowModal}
+         ticket={ticket}
+        />
+      </Dialog>
     </div>
   );
 }

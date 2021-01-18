@@ -38,6 +38,10 @@ schema.statics.get = function get(id) {
   return this.find({ [field]: id });
 };
 
+schema.statics.getAll = function getAll(id) {
+  return this.find({ userCreate: id });
+};
+
 schema.statics.update = function update(id, data) {
   const field = '_id';
   return this.updateOne({ [field]: id }, data);

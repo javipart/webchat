@@ -16,6 +16,23 @@ module.exports = {
     return res.response(result, data);
   },
 
+  getAll: async (req, res, next) => {
+    let result = false;
+    let { default: data = '' } = req;
+    try {
+      const { models, params } = req;
+      const { id } = params;
+      await models.ticket.getAll(id)
+        .then((tickets) => {
+          data = tickets;
+          result = true;
+        });
+    } catch (err) {
+      return next(err);
+    }
+    return res.response(result, data);
+  },
+
   get: async (req, res, next) => {
     let result = false;
     let { default: data = '' } = req;
@@ -23,8 +40,8 @@ module.exports = {
       const { models, params } = req;
       const { id } = params;
       await models.ticket.get(id)
-        .then((ticket) => {
-          data = ticket;
+        .then((tickets) => {
+          data = tickets;
           result = true;
         });
     } catch (err) {

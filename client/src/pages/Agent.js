@@ -10,6 +10,7 @@ import {
   ListItemSecondaryAction,
   Dialog,
   Badge,
+  Snackbar,
 } from '@material-ui/core';
 
 import {
@@ -23,6 +24,7 @@ import roomsApi from '../api/roomsApi';
 import { disconnectSocket, initSocket, subscribeRooms, subscribeToChat } from '../api/socketApi';
 import ticketsApi from '../api/ticketsApi';
 import AddTicket from '../components/AddTicket';
+import ListTickets from '../components/ListTickets';
 
 const useStyles = makeStyles({
   table: {
@@ -42,6 +44,10 @@ const useStyles = makeStyles({
   messageArea: {
     height: '70vh',
     overflowY: 'auto'
+  },
+  roomsArea: {
+    height: '57vh',
+    overflowY: 'auto'
   }
 });
 
@@ -52,7 +58,12 @@ const Index = () => {
   const [agentDoc, setAgentDoc] = useState('');
   const [agent, setAgent] = useState(null);
   const [allUsers, setAllUsers] = useState([]);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+  const [allTickets, setAllTickets] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showListModal, setShowListModal] = useState(false);
+  const [newMessagees, setNewMessages] = useState([]);
   const [data, setData] = useState({
     transmitter: '',
     message: '',
@@ -75,6 +86,13 @@ const Index = () => {
       if (data) {
         setAgent(agent);
         setDataTicket({ ...dataTicket, userCreate: agent['_id'] });
+        ticketsApi.getAll(agent['_id'])
+          .then(result => {
+            const { data: tickets } = result;
+            const activeTickets = tickets
+              .filter(ticket => ticket.status === 'created');
+            setAllTickets(activeTickets);
+          });
         roomsApi.getAgentRooms(agent['_id']).then((result) => {
           const { success, data: rooms } = result;
           setData({ ...data, transmitter: agent['_id'] });
@@ -116,16 +134,21 @@ const Index = () => {
 
   const pushMessage = (data) => {
     setAllMessages(messages => [...messages, data]);
+    if (data.transmitter !== agent['_id']) {
+      setAlertMessage('Nuevo Mensaje Recibido');
+      setShowAlert(true);
+    }
   };
 
   const pushRoom = (data) => {
     setAllRooms(rooms => [...rooms, data]);
   };
 
-  useMemo(() => {
+  useEffect(() => {
     if (idChat) {
       initSocket();
       subscribeToChat(idChat, pushMessage);
+      setNewMessages(ids => [...ids, idChat]);
       return () => {
         disconnectSocket();
       };
@@ -140,8 +163,8 @@ const Index = () => {
     };
   }, []);
 
-  const sendMessage = (data) => {
-    roomsApi.pushMessage(data).then(() => {
+  const sendMessage = (dataMessage) => {
+    roomsApi.pushMessage(dataMessage).then(() => {
       setData({ ...data, message: '' });
     });
   };
@@ -149,14 +172,46 @@ const Index = () => {
   const saveTicket = () => {
     ticketsApi.save(dataTicket).then(() => {
       setShowModal(false);
+      ticketsApi.getAll(agent['_id'])
+        .then(result => {
+          const { data: tickets } = result;
+          const activeTickets = tickets
+            .filter(ticket => ticket.status === 'created')
+          setAllTickets(activeTickets);
+          setAlertMessage('Creación Correcta del Ticket');
+          setShowAlert(true);
+          setDataTicket({
+            userId: '',
+            userCreate: '',
+            userUpdate: '',
+            details: '',
+          })
+        });
     })
-  }
+  };
+
+  const updateTicket = (data) => {
+    const { id } = data;
+    ticketsApi.update(id, data).then(() => {
+      ticketsApi.getAll(agent['_id'])
+        .then(result => {
+          const { data: tickets } = result;
+          const activeTickets = tickets
+            .filter(ticket => ticket.status === 'created')
+          setAllTickets(activeTickets);
+          setAlertMessage('Actualización Correcta del Tickets');
+          setShowAlert(true);
+        });
+    });
+  };
 
   useMemo(() => {
     if (idChat) {
       roomsApi.getRoom(idChat).then((result) => {
         const { success, data } = result;
         setAllMessages(data.chat)
+        const ids = newMessagees.filter(id => id !== idChat);
+        setNewMessages(ids);
       });
     }
   }, [idChat])
@@ -189,16 +244,16 @@ const Index = () => {
               <Divider />
               <Grid item xs={12} style={{ padding: '10px' }}>
                 Listado de tickets
-                <IconButton>
+                <IconButton onClick={() => setShowListModal(true)}>
                   <ListIcon />
                 </IconButton>
               </Grid>
               <Divider />
-              <List className={classes.messageArea}>
+              <List className={classes.roomsArea}>
                 {allRooms.map((item, index) => (
                   <ListItem button key={item['_id']} onClick={() => setIdChat(item['_id'])}>
                     <ListItemIcon>
-                      <Badge variant={'dot'} color={'secondary'}>
+                      <Badge variant={'dot'} color={newMessagees.includes(item['_id']) ? 'secondary' : ''}>
                         <Avatar alt="img" src={`https://material-ui.com/static/images/avatar/${index + 1}.jpg`} />
                       </Badge>
                     </ListItemIcon>
@@ -209,18 +264,22 @@ const Index = () => {
             </Grid>
             <Grid item xs={7}>
               <List className={classes.messageArea}>
-                {allMessages.map((item, index) => (
-                  <ListItem key={index}>
-                    <Grid container style={{ backgroundColor: agent['_id'] === item.transmitter ? '#FCE2DC' : '#DCEFFC' }}>
-                      <Grid item xs={12}>
-                        <ListItemText align={agent['_id'] === item.transmitter ? "right" : "left"} primary={item.message}></ListItemText>
+                {allMessages.map((item, index) => {
+                  const time = new Date(item.date);
+                  const timeMessage = `${time.getUTCHours()}:${time.getUTCMinutes()}`
+                  return (
+                    <ListItem key={index}>
+                      <Grid container style={{ backgroundColor: agent['_id'] === item.transmitter ? '#FCE2DC' : '#DCEFFC' }}>
+                        <Grid item xs={12}>
+                          <ListItemText align={agent['_id'] === item.transmitter ? "right" : "left"} primary={item.message}></ListItemText>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <ListItemText align={agent['_id'] === item.transmitter ? "left" : "right"} secondary={timeMessage}></ListItemText>
+                        </Grid>
                       </Grid>
-                      <Grid item xs={12}>
-                        <ListItemText align={agent['_id'] === item.transmitter ? "left" : "right"} secondary={item.date}></ListItemText>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                ))}
+                    </ListItem>
+                  );
+                })}
               </List>
               <Divider />
               <Grid container style={{ padding: '5px' }}>
@@ -235,10 +294,14 @@ const Index = () => {
                     } />
                 </Grid>
                 <Grid xs={1} align="right">
-                  <Fab color="primary" aria-label="add" onClick={() => sendMessage({
-                    id: idChat,
-                    data,
-                  })}><Send /></Fab>
+                  <Fab
+                    disabled={data.message === ''}
+                    color="primary"
+                    aria-label="add"
+                    onClick={() => sendMessage({
+                      id: idChat,
+                      data,
+                    })}><Send /></Fab>
                 </Grid>
               </Grid>
             </Grid>
@@ -246,6 +309,7 @@ const Index = () => {
         </>
         : component}
       <Dialog
+        id={'add'}
         open={showModal}
         onClose={() => setShowModal(false)}
       >
@@ -257,6 +321,30 @@ const Index = () => {
           setShowModal={setShowModal}
         />
       </Dialog>
+      <Dialog
+        id={'list'}
+        open={showListModal}
+        onClose={() => setShowListModal(false)}
+      >
+        <ListTickets
+          agent={agent}
+          allTickets={allTickets}
+          updateTicket={updateTicket}
+          setShowListModal={setShowListModal}
+        />
+      </Dialog>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        message={alertMessage}
+        open={showAlert}
+        autoHideDuration={3000}
+        onClose={() => setShowAlert(false)}
+      >
+
+      </Snackbar>
     </div>
   );
 }
