@@ -11,10 +11,14 @@ import {
   Dialog,
   Badge,
   Snackbar,
+  Container,
+  CssBaseline,
+  AppBar,
+  Toolbar,
 } from '@material-ui/core';
 
 import {
-  Send, PostAdd,
+  Send, PostAdd, LockOutlined,
 } from '@material-ui/icons';
 import ListIcon from '@material-ui/icons/List';
 
@@ -26,7 +30,7 @@ import ticketsApi from '../api/ticketsApi';
 import AddTicket from '../components/AddTicket';
 import ListTickets from '../components/ListTickets';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   table: {
     minWidth: 650,
   },
@@ -48,8 +52,25 @@ const useStyles = makeStyles({
   roomsArea: {
     height: '57vh',
     overflowY: 'auto'
-  }
-});
+  },
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  form: {
+    width: '100%',
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+}));
 
 const Index = () => {
   const [allRooms, setAllRooms] = useState([]);
@@ -64,6 +85,7 @@ const Index = () => {
   const [showModal, setShowModal] = useState(false);
   const [showListModal, setShowListModal] = useState(false);
   const [newMessagees, setNewMessages] = useState([]);
+  const [error, setError] = useState('');
   const [data, setData] = useState({
     transmitter: '',
     message: '',
@@ -75,6 +97,8 @@ const Index = () => {
     details: '',
   });
 
+  const classes = useStyles();
+
   const handleChange = (e) => {
     const { value } = e.target;
     setAgentDoc(value);
@@ -83,7 +107,7 @@ const Index = () => {
   const agentLogin = () => {
     agentsApi.get(agentDoc).then((result) => {
       const { success, data: agent } = result;
-      if (data) {
+      if (agent) {
         setAgent(agent);
         setDataTicket({ ...dataTicket, userCreate: agent['_id'] });
         ticketsApi.getAll(agent['_id'])
@@ -100,37 +124,42 @@ const Index = () => {
           setAllUsers(users);
           setAllRooms(rooms);
         })
+      } else {
+        setError('El Agente con ese documento no Existe')
       }
     })
   }
   let component = (
-    <div style={{
-      position: 'absolute',
-      bottom: '50%',
-      right: '50%',
-    }}>
-      <Card>
-        <Grid container>
-          <Grid item xs={12} >
-            <Avatar alt="Remy Sharp" src="https://material-ui.com/static/images/avatar/1.jpg" />
-            <Typography variant="h5" className="header-message">Agente</Typography>
-          </Grid>
-        </Grid>
-        <TextField
-          id={'doc'}
-          label={'Documento'}
-          value={agentDoc}
-          onChange={handleChange}
-          fullWidth
-        />
-        <Button onClick={agentLogin}>
-          Ingresar
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <div className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <LockOutlined />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Iniciar Sesión
+        </Typography>
+        <form className={classes.form} noValidate>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            id={'doc'}
+            label={'Documento'}
+            value={agentDoc}
+            onChange={handleChange}
+            fullWidth
+          />
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={agentLogin}>
+            Ingresar
         </Button>
-      </Card>
-    </div>
+          {error ? <h3>{error}</h3> : ''}
+        </form>
+      </div>
+    </Container>
   );
-
-  const classes = useStyles();
 
   const pushMessage = (data) => {
     setAllMessages(messages => [...messages, data]);
@@ -254,7 +283,7 @@ const Index = () => {
                   <ListItem button key={item['_id']} onClick={() => setIdChat(item['_id'])}>
                     <ListItemIcon>
                       <Badge variant={'dot'} color={newMessagees.includes(item['_id']) ? 'secondary' : ''}>
-                        <Avatar alt="img" src={`https://material-ui.com/static/images/avatar/${index + 1}.jpg`} />
+                        <Avatar alt="img" src={`https://material-ui.com/static/images/avatar/${index + 2}.jpg`} />
                       </Badge>
                     </ListItemIcon>
                     <ListItemText primary={`${item.user.name} ${item.user.lastName}`}>{`${item.user.name} $${item.user.lastName}`}</ListItemText>
@@ -288,6 +317,7 @@ const Index = () => {
                     id="outlined-basic-email"
                     label="Mensaje"
                     fullWidth
+                    disabled={!idChat}
                     value={data.message}
                     onChange={(e) =>
                       setData({ ...data, message: e.target.value })
