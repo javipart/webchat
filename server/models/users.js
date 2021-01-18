@@ -27,8 +27,8 @@ schema.statics.create = function create(data) {
   return this.insertMany(data);
 };
 
-schema.statics.get = function get() {
-
+schema.statics.getAll = function getAll() {
+  return this.find({});
 };
 
 module.exports = mongoose.model('user', schema);

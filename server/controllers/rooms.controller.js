@@ -5,11 +5,11 @@ module.exports = {
     let { default: data = '' } = req;
     try {
       const { models, body, websocket } = req;
-      await models.room.create(body)
+      await models.room.saveData(body)
         .then((room) => {
-          data = room.shift();
+          data = room;  
           result = true;
-          websocket.emitEvent(websocket.events.newRoom, data);
+          websocket.emitEvent(websocket.events.newRoom, room);
         });
     } catch (err) {
       return next(err);
@@ -27,6 +27,7 @@ module.exports = {
         .then((message) => {
           data = message;
           result = true;
+          chat.date = new Date();
         });
       websocket.emitEvent(`${websocket.events.message}-${id}`, chat);
     } catch (err) {

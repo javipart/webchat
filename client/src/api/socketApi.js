@@ -22,6 +22,14 @@ export const subscribeToChat = (id, pushMessage) => {
     pushMessage(msg);
   });
 }
+export const subscribeRooms = (pushRoom) => {
+  console.log('Intenta evento rooms')
+  if (!listener) return(true);
+  listener.on(events.newRoom, room => {
+    console.log('Websocket event rooms received!');
+    pushRoom(room);
+  });
+}
 export const sendMessageChat = (id, message) => {
   if (listener) listener.emit(`${events.message}-${id}`, { message });
 }

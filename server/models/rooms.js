@@ -5,9 +5,10 @@ const chat = require('./schemas/chat');
 
 const schema = new Schema({
   user: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
     index: true,
+    ref: 'user',
   },
   agent: {
     type: String,
@@ -18,12 +19,21 @@ const schema = new Schema({
   date: { type: Date, default: Date.now },
 });
 
-schema.statics.create = function create(data) {
-  return this.insertMany({
-    user: data.user,
-    agent: data.agent,
-    chat: data.chat,
-  });
+schema.statics.saveData = function saveData(data) {
+  return this.bulkWrite([
+    {
+      insertOne: {
+        document: {
+          user: data.user,
+          agent: data.agent,
+          chat: data.chat,
+        }
+      }
+    }
+  ]).then(room => this.findById(room.insertedIds[0])
+    .populate('user')
+    .exec()
+    .then(user => user));
 };
 
 schema.statics.pushMessage = function pushMessage(id, data) {
@@ -46,7 +56,10 @@ schema.statics.get = function get(id) {
 };
 
 schema.statics.getAgent = function getAgent(id) {
-  return this.find({ agent: id });
+  return this.find({ agent: id })
+    .populate('user')
+    .exec()
+    .then(user => user);
 };
 
 module.exports = mongoose.model('room', schema);

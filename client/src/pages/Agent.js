@@ -1,32 +1,32 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import {
-  Toolbar, AppBar,
-  IconButton, Typography,
-  Button, Fab, Popover,
-  Box, Grid, Card, Paper,
+  Typography, Button, Fab,
+  Grid, Card, Paper,
   TextField, List, ListItem,
-  ListItemIcon, Avatar, ListItemText, Divider,
+  ListItemIcon, Avatar, ListItemText,
+  Divider,
+  IconButton,
+  ListItemSecondaryAction,
+  Dialog,
+  Badge,
 } from '@material-ui/core';
 
 import {
-  Send
+  Send, PostAdd,
 } from '@material-ui/icons';
+import ListIcon from '@material-ui/icons/List';
 
 import { makeStyles } from '@material-ui/core/styles';
-import Form from '../components/Form';
-import usersApi from '../api/usersApi';
 import agentsApi from '../api/agentsApi';
 import roomsApi from '../api/roomsApi';
-import { disconnectSocket, initSocket, sendMessageChat, subscribeToChat } from '../api/socketApi';
+import { disconnectSocket, initSocket, subscribeRooms, subscribeToChat } from '../api/socketApi';
+import ticketsApi from '../api/ticketsApi';
+import AddTicket from '../components/AddTicket';
 
 const useStyles = makeStyles({
-  root: {
-    position: 'relative',
-    minHeight: 700,
-  },
   table: {
-    minWidth: 700,
+    minWidth: 650,
   },
   chatSection: {
     width: '100%',
@@ -36,7 +36,8 @@ const useStyles = makeStyles({
     backgroundColor: '#e0e0e0'
   },
   borderRight500: {
-    borderRight: '1px solid #e0e0e0'
+    borderRight: '1px solid #e0e0e0',
+    overflowY: 'auto'
   },
   messageArea: {
     height: '70vh',
@@ -50,9 +51,17 @@ const Index = () => {
   const [allMessages, setAllMessages] = useState([]);
   const [agentDoc, setAgentDoc] = useState('');
   const [agent, setAgent] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState({
     transmitter: '',
     message: '',
+  });
+  const [dataTicket, setDataTicket] = useState({
+    userId: '',
+    userCreate: '',
+    userUpdate: '',
+    details: '',
   });
 
   const handleChange = (e) => {
@@ -65,9 +74,12 @@ const Index = () => {
       const { success, data: agent } = result;
       if (data) {
         setAgent(agent);
+        setDataTicket({ ...dataTicket, userCreate: agent['_id'] });
         roomsApi.getAgentRooms(agent['_id']).then((result) => {
           const { success, data: rooms } = result;
           setData({ ...data, transmitter: agent['_id'] });
+          const users = rooms.map(user => user.user);
+          setAllUsers(users);
           setAllRooms(rooms);
         })
       }
@@ -103,11 +115,14 @@ const Index = () => {
   const classes = useStyles();
 
   const pushMessage = (data) => {
-    console.log(data)
     setAllMessages(messages => [...messages, data]);
   };
 
-  useEffect(() => {
+  const pushRoom = (data) => {
+    setAllRooms(rooms => [...rooms, data]);
+  };
+
+  useMemo(() => {
     if (idChat) {
       initSocket();
       subscribeToChat(idChat, pushMessage);
@@ -117,19 +132,37 @@ const Index = () => {
     }
   }, [idChat]);
 
+  useEffect(() => {
+    initSocket();
+    subscribeRooms(pushRoom);
+    return () => {
+      disconnectSocket();
+    };
+  }, []);
+
   const sendMessage = (data) => {
-    roomsApi.pushMessage(data);
+    roomsApi.pushMessage(data).then(() => {
+      setData({ ...data, message: '' });
+    });
   };
 
-  useMemo(() => {
-    roomsApi.getRoom(idChat).then((result) => {
-      const { success, data } = result;
-      setAllMessages(data.chat)
+  const saveTicket = () => {
+    ticketsApi.save(dataTicket).then(() => {
+      setShowModal(false);
     })
+  }
+
+  useMemo(() => {
+    if (idChat) {
+      roomsApi.getRoom(idChat).then((result) => {
+        const { success, data } = result;
+        setAllMessages(data.chat)
+      });
+    }
   }, [idChat])
 
   return (
-    <div className={classes.root}>
+    <div>
       {agent ?
         <>
           <Grid container>
@@ -145,36 +178,52 @@ const Index = () => {
                     <Avatar alt="Remy Sharp" src="https://material-ui.com/static/images/avatar/1.jpg" />
                   </ListItemIcon>
                   <ListItemText primary={agent.name}></ListItemText>
+                  <ListItemSecondaryAction>
+                    Crear Ticket
+                    <IconButton onClick={() => setShowModal(true)}>
+                      <PostAdd />
+                    </IconButton>
+                  </ListItemSecondaryAction>
                 </ListItem>
               </List>
               <Divider />
-              <List>
-                {allRooms.map(item => (
+              <Grid item xs={12} style={{ padding: '10px' }}>
+                Listado de tickets
+                <IconButton>
+                  <ListIcon />
+                </IconButton>
+              </Grid>
+              <Divider />
+              <List className={classes.messageArea}>
+                {allRooms.map((item, index) => (
                   <ListItem button key={item['_id']} onClick={() => setIdChat(item['_id'])}>
                     <ListItemIcon>
-                      <Avatar alt="img" src="https://material-ui.com/static/images/avatar/1.jpg" />
+                      <Badge variant={'dot'} color={'secondary'}>
+                        <Avatar alt="img" src={`https://material-ui.com/static/images/avatar/${index + 1}.jpg`} />
+                      </Badge>
                     </ListItemIcon>
-                    <ListItemText primary={item.user}>{item.user}</ListItemText>
-                    <ListItemText secondary="online" align="right"></ListItemText>
+                    <ListItemText primary={`${item.user.name} ${item.user.lastName}`}>{`${item.user.name} $${item.user.lastName}`}</ListItemText>
                   </ListItem>
                 ))}
               </List>
             </Grid>
             <Grid item xs={7}>
-              {allMessages.map((item, index) => (
-                <ListItem key={index}>
-                  <Grid container>
-                    <Grid item xs={12}>
-                      <ListItemText align={agent['_id'] === item.transmitter ? "right" : "left"} primary={item.message}></ListItemText>
+              <List className={classes.messageArea}>
+                {allMessages.map((item, index) => (
+                  <ListItem key={index}>
+                    <Grid container style={{ backgroundColor: agent['_id'] === item.transmitter ? '#FCE2DC' : '#DCEFFC' }}>
+                      <Grid item xs={12}>
+                        <ListItemText align={agent['_id'] === item.transmitter ? "right" : "left"} primary={item.message}></ListItemText>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <ListItemText align={agent['_id'] === item.transmitter ? "left" : "right"} secondary={item.date}></ListItemText>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                      <ListItemText align={agent['_id'] === item.transmitter ? "left" : "right"} secondary={item.date}></ListItemText>
-                    </Grid>
-                  </Grid>
-                </ListItem>
-              ))}
+                  </ListItem>
+                ))}
+              </List>
               <Divider />
-              <Grid container style={{ padding: '20px' }}>
+              <Grid container style={{ padding: '5px' }}>
                 <Grid item xs={11}>
                   <TextField
                     id="outlined-basic-email"
@@ -196,6 +245,18 @@ const Index = () => {
           </Grid>
         </>
         : component}
+      <Dialog
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      >
+        <AddTicket
+          users={allUsers}
+          setDataTicket={setDataTicket}
+          dataTicket={dataTicket}
+          saveTicket={saveTicket}
+          setShowModal={setShowModal}
+        />
+      </Dialog>
     </div>
   );
 }

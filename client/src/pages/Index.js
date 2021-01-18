@@ -13,8 +13,11 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import Form from '../components/Form';
 import Chat from '../components/Chat';
+import CheckTicket from '../components/CheckTicket';
+
 import usersApi from '../api/usersApi';
 import roomsApi from '../api/roomsApi';
+import ticketsApi from '../api/ticketsApi';
 import {
   initSocket,
   disconnectSocket,
@@ -23,7 +26,6 @@ import {
 } from '../api/socketApi';
 
 const io = require('socket.io-client');
-const socket = io('http://localhost:3011/');
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -100,7 +102,11 @@ const Index = () => {
     roomsApi.pushMessage(data);
   };
 
-
+  const findTicket = (id) => {
+    ticketsApi.get(id).then(result => {
+      console.log(result);
+    });
+  }
 
   useEffect(() => {
     if (idChat) {
@@ -121,6 +127,13 @@ const Index = () => {
           </Typography>
         </Toolbar>
       </AppBar>
+      <Card style={{
+        position: 'relative'
+      }}>
+        <CheckTicket
+          findTicket={findTicket}
+        />
+      </Card>
       <Fab
         color="primary"
         aria-label="edit"
