@@ -111,7 +111,7 @@ const Index = () => {
     ticketsApi.get(id).then(result => {
       const { data } = result;
       setTicket(data.shift());
-      setShowModal(true)
+      setShowModal(true);
     }).catch(() => {
       setError('No existe el ticket')
       setShowAlert(true);
