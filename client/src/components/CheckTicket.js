@@ -11,7 +11,7 @@ import {
   Send
 } from '@material-ui/icons';
 
-const CheckTicket = ({ findTicket }) => {
+const CheckTicket = ({ findTicket, error }) => {
   const [numberTicket, setNumberTicket] = useState('');
   return (
     <Grid container spacing={'1'}>
@@ -25,7 +25,10 @@ const CheckTicket = ({ findTicket }) => {
         />
       </Grid>
       <Grid item xs={2}>
-        <IconButton onClick={() => findTicket(numberTicket)}>
+        <IconButton
+          disabled={!numberTicket}
+          onClick={() => findTicket(numberTicket)}
+        >
           <Search />
         </IconButton>
       </Grid>

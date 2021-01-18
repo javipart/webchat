@@ -374,7 +374,6 @@ const Index = () => {
         autoHideDuration={3000}
         onClose={() => setShowAlert(false)}
       >
-
       </Snackbar>
     </div>
   );

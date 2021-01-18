@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import {
-  Toolbar, AppBar,Typography,
-  Fab, Popover, Card, Paper, Dialog,
+  Toolbar, AppBar, Typography,
+  Fab, Popover, Card, Paper, Dialog, Snackbar,
 } from '@material-ui/core';
 
 import {
@@ -54,6 +54,8 @@ const Index = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [ticket, setTicket] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
   const [form, setForm] = useState({
     name: '',
     lastName: '',
@@ -108,9 +110,11 @@ const Index = () => {
   const findTicket = (id) => {
     ticketsApi.get(id).then(result => {
       const { data } = result;
-      console.log(data)
       setTicket(data.shift());
       setShowModal(true)
+    }).catch(() => {
+      setError('No existe el ticket')
+      setShowAlert(true);
     });
   }
 
@@ -189,10 +193,20 @@ const Index = () => {
         onClose={() => setShowModal(false)}
       >
         <ViewTicket
-         setShowModal={setShowModal}
-         ticket={ticket}
+          setShowModal={setShowModal}
+          ticket={ticket}
         />
       </Dialog>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        message={error}
+        open={showAlert}
+        autoHideDuration={3000}
+        onClose={() => setShowAlert(false)}
+      ></Snackbar>
     </div>
   );
 }
