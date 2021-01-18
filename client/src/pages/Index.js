@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
 import {
-  Toolbar, AppBar,
-  IconButton, Typography,
-  Button, Fab, Popover, Box, Grid, Card, Paper, Dialog,
+  Toolbar, AppBar,Typography,
+  Fab, Popover, Card, Paper, Dialog,
 } from '@material-ui/core';
 
 import {
-  Menu, Message
+  Message
 } from '@material-ui/icons';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -22,11 +21,8 @@ import {
   initSocket,
   disconnectSocket,
   subscribeToChat,
-  sendMessageChat,
 } from '../api/socketApi';
 import ViewTicket from '../components/ViewTicket';
-
-const io = require('socket.io-client');
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -155,6 +151,7 @@ const Index = () => {
       <Popover
         id={'form'}
         open={formView}
+        onClose={() => setFormView(false)}
         anchorEl={anchorEl}
         anchorOrigin={{
           vertical: 'top',

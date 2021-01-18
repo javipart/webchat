@@ -19,9 +19,12 @@ import {
   Close,
 } from '@material-ui/icons';
 
-const ListTickets = ({ agent, allTickets, updateTicket, setShowListModal }) => {
+const ListTickets = ({ agent, allTickets, updateTicket, setShowListModal, allUsers }) => {
   const titles = ['ID', 'Cliente', 'Acciones'];
-
+  const getName = (id) => {
+    const user = allUsers.filter(user => user['_id'] === id).shift();
+    return `${user.name} ${user.lastName}`;
+  }
   return (
     <>
       <DialogTitle>
@@ -48,7 +51,7 @@ const ListTickets = ({ agent, allTickets, updateTicket, setShowListModal }) => {
                   {ticket['_id']}
                 </TableCell>
                 <TableCell>
-                  {ticket.userId}
+                  {getName(ticket.userId)}
                 </TableCell>
                 <TableCell>
                   <IconButton onClick={() => updateTicket({

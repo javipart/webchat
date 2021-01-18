@@ -361,6 +361,7 @@ const Index = () => {
           allTickets={allTickets}
           updateTicket={updateTicket}
           setShowListModal={setShowListModal}
+          allUsers={allUsers}
         />
       </Dialog>
       <Snackbar
