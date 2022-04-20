@@ -1,6 +1,6 @@
 # CHAT
 
-Chat sencillo, utilizando React, 
+Chat sencillo, utilizando React, Webosocker, NodeJS y Material-UI
 
 ## Instalación
 
@@ -8,12 +8,12 @@ Clonar el repositorio
 
 `$ git clone url`
 
-Luego de clonar, tomar la rama feat/commit y luego ubicarse en cada uno de los servicios client, server y socket, dentro de cada uno, ejecutar npm start.
+Luego de clonar, en la raíz del proyecto, tomar la rama feat/commit, ejecutar el comando `docker-compose up --build -d`
 
-Luego de finalizar con la instalación de dependencias ejecutar `npm start`.
+Esperar que finalice de hacer la instalación de dependencias.
 
-Se abre una página en el navegador y ya se puede validar el funcionamiento.
+## Probando
 
-## Data de simulación de API
+Acceder al navegador `http://localhost:3000/`  y pulsar el botón en la parte inferior izquierda y completar el formulario para iniciar con una conversación.
 
-Para simular el consumo de una API se creó un archivo `src/api/data.json`, la cual el leída con un setTimeout para simular un tiempo de espera. El archivo tiene diferentes fechas, que dependiendo el día de la revisión, se puede modificar para validar el funcionamiento de filtros y rangos.
+Para el Agente se debe acceder a `http://localhost:3000/agent` e ingresar `1020304050` para poder "loguearse".
