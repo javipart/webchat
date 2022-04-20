@@ -3,7 +3,7 @@ const RestClient = require('./restClient');
 
 module.exports = class Websocket extends RestClient {
   constructor(events) {
-    super('http://127.0.0.1:3011/', 'Websocket');
+    super('http://172.30.0.1:3011/', 'Websocket');
     this.events = events;
   }
 
