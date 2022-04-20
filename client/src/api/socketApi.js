@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 import events from '../models/events';
-const SERVER_SOCKET = 'http://localhost:3011/';
+const SERVER_SOCKET = 'http://127.0.0.1:3011/';
 
 let listener;
 export const initSocket = () => {

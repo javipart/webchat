@@ -95,7 +95,7 @@ const Index = () => {
           setIdChat(room[fieldId]);
           const firstMessage = room.chat.shift();
           setConversation(conversation => [...conversation, firstMessage]);
-        })
+        });
       });
   };
 

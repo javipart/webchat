@@ -1,0 +1,19 @@
+# CHAT
+
+Chat sencillo, utilizando React, 
+
+## Instalación
+
+Clonar el repositorio
+
+`$ git clone url`
+
+Luego de clonar, tomar la rama feat/commit y luego ubicarse en cada uno de los servicios client, server y socket, dentro de cada uno, ejecutar npm start.
+
+Luego de finalizar con la instalación de dependencias ejecutar `npm start`.
+
+Se abre una página en el navegador y ya se puede validar el funcionamiento.
+
+## Data de simulación de API
+
+Para simular el consumo de una API se creó un archivo `src/api/data.json`, la cual el leída con un setTimeout para simular un tiempo de espera. El archivo tiene diferentes fechas, que dependiendo el día de la revisión, se puede modificar para validar el funcionamiento de filtros y rangos.

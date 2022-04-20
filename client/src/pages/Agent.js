@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   Typography, Button, Fab,
-  Grid, Card, Paper,
+  Grid, Paper,
   TextField, List, ListItem,
   ListItemIcon, Avatar, ListItemText,
   Divider,
@@ -13,8 +13,6 @@ import {
   Snackbar,
   Container,
   CssBaseline,
-  AppBar,
-  Toolbar,
 } from '@material-ui/core';
 
 import {

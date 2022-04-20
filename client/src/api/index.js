@@ -1,5 +1,5 @@
 import axios from 'axios';
-const SERVER = 'http://localhost:3010/api/v1/';
+const SERVER = 'http://127.0.01:3010/api/v1/';
 
 
 export const instance = axios.create({

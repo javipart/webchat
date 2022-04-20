@@ -1,0 +1,32 @@
+version: '2.4'
+
+services:
+# API
+  api:
+    container_name: chat-api
+    build:
+      context: server
+    depends_on:
+      - socket
+    ports:
+      - "3010:3010"
+    restart: always
+# Web Socket
+  socket:
+    container_name: chat-websocket
+    build:
+      context: socket
+    ports:
+      - "3011:3011"
+    restart: always
+# Client
+  client:
+    container_name: chat-client
+    build:
+      context: client
+    depends_on:
+      - api
+      - socket
+    ports:
+      - "3000:3000"
+    restart: always
